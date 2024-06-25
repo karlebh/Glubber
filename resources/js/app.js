@@ -25,7 +25,7 @@ createInertiaApp({
             .use(pinia)
             .use(VueGoogleMaps, {
                 load: {
-                    key: "AIzaSyBUu3nagMTS1mLSGPaHz_Y1xK26uA-UHbA",
+                    key: import.meta.env.GOOGLE_MAP_API,
                     libraries: "places",
                 },
             })
