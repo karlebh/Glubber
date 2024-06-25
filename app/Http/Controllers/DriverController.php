@@ -25,7 +25,7 @@ class DriverController extends Controller
     $user = $request->user();
 
     $user->update($request->name);
-    $user->driver()->updateOrCreate($request->except('name'));
+    $user->driver()->update($request->except('name'));
 
     return $user->load('driver');
   }

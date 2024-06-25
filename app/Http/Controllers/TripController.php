@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\TripAccepted;
+use App\Events\TripCreated;
 use App\Events\TripEnded;
 use App\Events\TripLocationUpdated;
 use App\Events\TripStarted;
@@ -20,10 +21,13 @@ class TripController extends Controller
     ]);
 
     $trip = Trip::create(
-      [...$data, [
+      [
+        ...$data,
         'user_id' => $request->user()->id,
-      ]]
+      ]
     );
+
+    event(new TripCreated($trip, $request->user()));
 
     return response()->json(['trip' => $trip, 'message' => 'Trip successfully created']);
   }
@@ -49,9 +53,9 @@ class TripController extends Controller
       'driver_location' => $request->driver_location
     ]);
 
-    TripAccepted::dispatch($request->user());
-
     $trip = $trip->load('driver.user');
+
+    event(new TripAccepted($trip, $trip->user));
 
     return response()->json(['message' => 'Trip accepted by driver', 'trip' => $trip]);
   }
@@ -60,9 +64,9 @@ class TripController extends Controller
   {
     $trip->update(['is_started' => true]);
 
-    TripStarted::dispatch($request->user());
-
     $trip = $trip->load('driver.user');
+
+    event(new TripStarted($trip, $request->user()));
 
     return response()->json(['message' => 'Trip started by driver', 'trip' => $trip]);
   }
@@ -71,9 +75,9 @@ class TripController extends Controller
   {
     $trip->update(['is_completed' => true]);
 
-    TripEnded::dispatch($request->usrer());
-
     $trip = $trip->load('driver.user');
+
+    event(new TripEnded($trip, $request->user()));
 
     return response()->json(['message' => 'Trip ended by driver', 'trip' => $trip]);
   }
@@ -82,13 +86,13 @@ class TripController extends Controller
   {
     $request->validate(['driver_location']);
 
-    TripLocationUpdated::dispatch($request->user());
-
     $trip->update([
       'driver_location' => $request->driver_location
     ]);
 
     $trip = $trip->load('driver.user');
+
+    event(new TripLocationUpdated($trip, $request->user()));
 
     return response()->json(['message' => 'Trip location changed by driver', 'trip' => $trip]);
   }
