@@ -8,7 +8,9 @@ use App\Http\Controllers\TripController;
 
 Route::post('/login', [LoginController::class, 'store']);
 Route::post('/login/verify', [LoginController::class, 'verify']);
-
+Route::post('/me', function () {
+  return request()->phone;
+});
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
 

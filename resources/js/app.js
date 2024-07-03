@@ -1,37 +1,20 @@
-import "./bootstrap";
-import "../css/app.css";
-
-import { createApp, h } from "vue";
-import { createInertiaApp } from "@inertiajs/vue3";
-import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
-import { ZiggyVue } from "../../vendor/tightenco/ziggy/dist/vue.m";
+import { createApp } from "vue";
 import { createPinia } from "pinia";
 import VueGoogleMaps from "@fawmi/vue-google-maps";
+import { equal } from "fast-deep-equal";
 
-const appName = import.meta.env.VITE_APP_NAME || "Laravel";
+import App from "./App.vue";
+import router from "./router.js";
 const pinia = createPinia();
+const app = createApp(App);
 
-createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
-    resolve: (name) =>
-        resolvePageComponent(
-            `./Pages/${name}.vue`,
-            import.meta.glob("./Pages/**/*.vue")
-        ),
-    setup({ el, App, props, plugin }) {
-        return createApp({ render: () => h(App, props) })
-            .use(plugin)
-            .use(ZiggyVue, Ziggy)
-            .use(pinia)
-            .use(VueGoogleMaps, {
-                load: {
-                    key: import.meta.env.GOOGLE_MAP_API,
-                    libraries: "places",
-                },
-            })
-            .mount(el);
-    },
-    progress: {
-        color: "#4B5563",
+app.use(pinia);
+app.use(router);
+app.use(VueGoogleMaps, {
+    load: {
+        // key: import.meta.env.GOOGLE_MAP_API,
+        key: "AIzaSyBUu3nagMTS1mLSGPaHz_Y1xK26uA-UHbA",
+        libraries: "places",
     },
 });
+app.mount("#app");

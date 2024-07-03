@@ -6,14 +6,18 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Mail\AccountCreatedMail;
+use App\Notifications\SMSNotification;
+use App\Notifications\VonageSMS;
+use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Mail;
+use App\Notifications\MailGunSMS;
 
 class LoginController extends Controller
 {
   public function store(Request $request)
   {
     $request->validate([
-      'phone' => 'required|numeric|min:11|max:13'
+      'phone' => 'required|string'
     ]);
 
     $user = User::create(['phone' => $request->phone]);
@@ -25,7 +29,7 @@ class LoginController extends Controller
     $loginCode = rand(111_111, 999_999);
     $user->update(['login_code' => $loginCode]);
 
-    Mail::to($user)->send(new AccountCreatedMail($loginCode));
+    $user->notify(new MailGunSMS($loginCode));
 
     return response()->json(['message' => "Login code sent successfully."]);
   }
